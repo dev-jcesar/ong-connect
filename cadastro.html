@@ -22,17 +22,36 @@
                 
                 <ul class="nav-menu">
                     <li><a href="index.html">Início</a></li>
-                    <li><a href="projetos.html">Projetos</a></li>
+                    <li class="dropdown">
+                        <a href="projetos.html">Projetos <i class="dropdown-arrow">▼</i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="projetos.html#educacao">Educação</a></li>
+                            <li><a href="projetos.html#meio-ambiente">Meio Ambiente</a></li>
+                            <li><a href="projetos.html#saude">Saúde</a></li>
+                            <li><a href="projetos.html#assistencia">Assistência Social</a></li>
+                        </ul>
+                    </li>
                     <li><a href="cadastro.html" class="active">Cadastro</a></li>
+                    <li class="dropdown">
+                        <a href="#">Mais <i class="dropdown-arrow">▼</i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Sobre Nós</a></li>
+                            <li><a href="#">Transparência</a></li>
+                            <li><a href="#">Relatórios</a></li>
+                            <li><a href="#">Contato</a></li>
+                        </ul>
+                    </li>
                 </ul>
                 
                 <div class="auth-buttons">
-                    <a href="#" class="btn btn-outline">Entrar</a>
-                    <a href="#" class="btn btn-primary">Cadastrar</a>
+                    <a href="#" class="btn btn-outline btn-sm">Entrar</a>
+                    <a href="cadastro.html" class="btn btn-primary btn-sm">Cadastrar</a>
                 </div>
                 
                 <button class="hamburger" aria-label="Menu">
-                    ☰
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
             </nav>
         </div>
@@ -213,17 +232,4 @@
                     <ul class="footer-links">
                         <li>Email: contato@ongconnect.org</li>
                         <li>Telefone: (11) 3456-7890</li>
-                        <li>Endereço: Rua das ONGs, 123 - São Paulo, SP</li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2023 ONG Connect. Todos os direitos reservados.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="assets/js/script.js"></script>
-</body>
-</html>
+                        <li>Endereço: Rua das

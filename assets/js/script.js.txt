@@ -1,0 +1,224 @@
+// ===== SISTEMA DE NAVEGAÇÃO =====
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Menu Mobile
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    const authButtons = document.querySelector('.auth-buttons');
+    
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            if (authButtons) {
+                authButtons.classList.toggle('active');
+            }
+            
+            // Bloquear scroll quando menu está aberto
+            document.body.style.overflow = 
+                this.classList.contains('active') ? 'hidden' : '';
+        });
+    }
+    
+    // Dropdown Mobile
+    const dropdowns = document.querySelectorAll('.dropdown > a');
+    
+    dropdowns.forEach(dropdown => {
+        dropdown.addEventListener('click', function(e) {
+            if (window.innerWidth <= 991.98) {
+                e.preventDefault();
+                const parent = this.parentElement;
+                parent.classList.toggle('active');
+                
+                // Fechar outros dropdowns
+                dropdowns.forEach(other => {
+                    if (other !== this) {
+                        other.parentElement.classList.remove('active');
+                    }
+                });
+            }
+        });
+    });
+    
+    // Fechar menu ao clicar em link
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 991.98) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                if (authButtons) {
+                    authButtons.classList.remove('active');
+                }
+                document.body.style.overflow = '';
+            }
+        });
+    });
+    
+    // Fechar menu ao redimensionar para desktop
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 991.98) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+            if (authButtons) {
+                authButtons.classList.remove('active');
+            }
+            document.body.style.overflow = '';
+        }
+    });
+
+    // ===== SISTEMA DE MÁSCARAS =====
+    
+    function mascaraCPF(cpf) {
+        cpf = cpf.replace(/\D/g, "");
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d)/, "$1.$2");
+        cpf = cpf.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        return cpf;
+    }
+
+    function mascaraTelefone(telefone) {
+        telefone = telefone.replace(/\D/g, "");
+        telefone = telefone.replace(/^(\d{2})(\d)/g, "($1) $2");
+        telefone = telefone.replace(/(\d)(\d{4})$/, "$1-$2");
+        return telefone;
+    }
+
+    function mascaraCEP(cep) {
+        cep = cep.replace(/\D/g, "");
+        cep = cep.replace(/^(\d{5})(\d)/, "$1-$2");
+        return cep;
+    }
+
+    // Aplicar máscaras
+    const cpfInput = document.getElementById('cpf');
+    const telefoneInput = document.getElementById('telefone');
+    const cepInput = document.getElementById('cep');
+    
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function() {
+            this.value = mascaraCPF(this.value);
+        });
+    }
+    
+    if (telefoneInput) {
+        telefoneInput.addEventListener('input', function() {
+            this.value = mascaraTelefone(this.value);
+        });
+    }
+    
+    if (cepInput) {
+        cepInput.addEventListener('input', function() {
+            this.value = mascaraCEP(this.value);
+        });
+    }
+
+    // ===== VALIDAÇÃO DE FORMULÁRIO =====
+    
+    const form = document.getElementById('cadastroForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (form.checkValidity()) {
+                // Simular envio bem-sucedido
+                showAlert('Cadastro enviado com sucesso! Entraremos em contato em breve.', 'success');
+                form.reset();
+            } else {
+                showAlert('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+            }
+        });
+    }
+
+    // ===== SISTEMA DE ALERTAS =====
+    
+    function showAlert(message, type = 'info') {
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.innerHTML = `
+            <span class="alert-message">${message}</span>
+            <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        // Adicionar ao início do body
+        document.body.insertBefore(alert, document.body.firstChild);
+        
+        // Auto-remover após 5 segundos
+        setTimeout(() => {
+            if (alert.parentElement) {
+                alert.remove();
+            }
+        }, 5000);
+    }
+
+    // ===== ANIMAÇÕES =====
+    
+    // Observador de interseção para animações
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+            }
+        });
+    }, observerOptions);
+    
+    // Observar elementos para animação
+    document.querySelectorAll('section, .card, .value-item').forEach(element => {
+        observer.observe(element);
+    });
+
+    // ===== CONTADORES ANIMADOS =====
+    
+    const statNumbers = document.querySelectorAll('.stat-number');
+    
+    statNumbers.forEach(stat => {
+        const target = parseInt(stat.textContent.replace(/\D/g, ''));
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                stat.textContent = target.toLocaleString();
+                clearInterval(timer);
+            } else {
+                stat.textContent = Math.floor(current).toLocaleString();
+            }
+        }, 20);
+    });
+});
+
+// ===== FUNÇÕES GLOBAIS =====
+
+// Função para mostrar modal
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Função para fechar modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// Fechar modal ao clicar fora
+window.addEventListener('click', function(e) {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    });
+});
