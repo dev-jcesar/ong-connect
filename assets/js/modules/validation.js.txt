@@ -1,0 +1,285 @@
+// ===== SISTEMA DE VALIDAÇÃO AVANÇADA =====
+
+class FormValidator {
+    constructor() {
+        this.errors = new Map();
+        this.init();
+    }
+
+    init() {
+        this.setupEventListeners();
+        
+        // Re-inicializar quando a página muda (SPA)
+        window.addEventListener('pageChanged', () => {
+            this.setupEventListeners();
+        });
+    }
+
+    setupEventListeners() {
+        const forms = document.querySelectorAll('form[data-validate]');
+        
+        forms.forEach(form => {
+            // Validar em tempo real
+            form.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('blur', () => this.validateField(input));
+                input.addEventListener('input', () => this.clearFieldError(input));
+            });
+
+            // Validar no submit
+            form.addEventListener('submit', (e) => {
+                if (!this.validateForm(form)) {
+                    e.preventDefault();
+                    this.showFormErrors(form);
+                }
+            });
+        });
+    }
+
+    validateForm(form) {
+        this.errors.clear();
+        let isValid = true;
+
+        const fields = form.querySelectorAll('input, select, textarea');
+        
+        fields.forEach(field => {
+            if (!this.validateField(field)) {
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    }
+
+    validateField(field) {
+        const value = field.value.trim();
+        const rules = field.dataset.rules ? field.dataset.rules.split(' ') : [];
+        
+        // Limpar erro anterior
+        this.clearFieldError(field);
+
+        // Aplicar regras de validação
+        for (const rule of rules) {
+            const [ruleName, ruleParam] = rule.split(':');
+            
+            switch (ruleName) {
+                case 'required':
+                    if (!this.validateRequired(value)) {
+                        this.addError(field, 'Este campo é obrigatório');
+                        return false;
+                    }
+                    break;
+                    
+                case 'minLength':
+                    if (!this.validateMinLength(value, parseInt(ruleParam))) {
+                        this.addError(field, `Mínimo de ${ruleParam} caracteres`);
+                        return false;
+                    }
+                    break;
+                    
+                case 'maxLength':
+                    if (!this.validateMaxLength(value, parseInt(ruleParam))) {
+                        this.addError(field, `Máximo de ${ruleParam} caracteres`);
+                        return false;
+                    }
+                    break;
+                    
+                case 'email':
+                    if (!this.validateEmail(value)) {
+                        this.addError(field, 'Email inválido');
+                        return false;
+                    }
+                    break;
+                    
+                case 'cpf':
+                    if (!this.validateCPF(value)) {
+                        this.addError(field, 'CPF inválido');
+                        return false;
+                    }
+                    break;
+                    
+                case 'phone':
+                    if (!this.validatePhone(value)) {
+                        this.addError(field, 'Telefone inválido');
+                        return false;
+                    }
+                    break;
+                    
+                case 'cep':
+                    if (!this.validateCEP(value)) {
+                        this.addError(field, 'CEP inválido');
+                        return false;
+                    }
+                    break;
+                    
+                case 'match':
+                    const otherField = document.getElementById(ruleParam);
+                    if (!this.validateMatch(value, otherField?.value)) {
+                        this.addError(field, 'Os campos não coincidem');
+                        return false;
+                    }
+                    break;
+            }
+        }
+
+        // Validações específicas por tipo
+        if (field.type === 'email' && value && !this.validateEmail(value)) {
+            this.addError(field, 'Email inválido');
+            return false;
+        }
+
+        if (field.hasAttribute('required') && !this.validateRequired(value)) {
+            this.addError(field, 'Este campo é obrigatório');
+            return false;
+        }
+
+        return true;
+    }
+
+    // ===== MÉTODOS DE VALIDAÇÃO =====
+    
+    validateRequired(value) {
+        return value !== '';
+    }
+
+    validateMinLength(value, min) {
+        return value.length >= min;
+    }
+
+    validateMaxLength(value, max) {
+        return value.length <= max;
+    }
+
+    validateEmail(value) {
+        if (!value) return true;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value);
+    }
+
+    validateCPF(value) {
+        if (!value) return true;
+        const cpf = value.replace(/\D/g, '');
+        
+        // Verificar se tem 11 dígitos e não é sequência repetida
+        if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) {
+            return false;
+        }
+
+        // Validar dígitos verificadores
+        let sum = 0;
+        let remainder;
+
+        for (let i = 1; i <= 9; i++) {
+            sum += parseInt(cpf.substring(i - 1, i)) * (11 - i);
+        }
+
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+        if (remainder !== parseInt(cpf.substring(9, 10))) return false;
+
+        sum = 0;
+        for (let i = 1; i <= 10; i++) {
+            sum += parseInt(cpf.substring(i - 1, i)) * (12 - i);
+        }
+
+        remainder = (sum * 10) % 11;
+        if (remainder === 10 || remainder === 11) remainder = 0;
+        if (remainder !== parseInt(cpf.substring(10, 11))) return false;
+
+        return true;
+    }
+
+    validatePhone(value) {
+        if (!value) return true;
+        const phone = value.replace(/\D/g, '');
+        return phone.length >= 10 && phone.length <= 11;
+    }
+
+    validateCEP(value) {
+        if (!value) return true;
+        const cep = value.replace(/\D/g, '');
+        return cep.length === 8;
+    }
+
+    validateMatch(value, otherValue) {
+        return value === otherValue;
+    }
+
+    // ===== MANIPULAÇÃO DE ERROS =====
+
+    addError(field, message) {
+        this.errors.set(field.id || field.name, message);
+        this.showFieldError(field, message);
+    }
+
+    showFieldError(field, message) {
+        // Remover erro anterior
+        this.clearFieldError(field);
+
+        // Adicionar classe de erro
+        field.classList.add('error');
+
+        // Criar elemento de erro
+        const errorElement = document.createElement('div');
+        errorElement.className = 'field-error';
+        errorElement.innerHTML = `
+            <span class="error-icon">⚠️</span>
+            <span class="error-message">${message}</span>
+        `;
+
+        // Inserir após o campo
+        field.parentNode.insertBefore(errorElement, field.nextSibling);
+
+        // Focar no campo com erro
+        field.focus();
+    }
+
+    clearFieldError(field) {
+        field.classList.remove('error');
+        const existingError = field.parentNode.querySelector('.field-error');
+        if (existingError) {
+            existingError.remove();
+        }
+    }
+
+    showFormErrors(form) {
+        // Mostrar resumo de erros no topo do formulário
+        let errorSummary = form.querySelector('.error-summary');
+        
+        if (!errorSummary) {
+            errorSummary = document.createElement('div');
+            errorSummary.className = 'error-summary';
+            form.insertBefore(errorSummary, form.firstChild);
+        }
+
+        if (this.errors.size > 0) {
+            const errorsList = Array.from(this.errors.values()).map(error => 
+                `<li>${error}</li>`
+            ).join('');
+
+            errorSummary.innerHTML = `
+                <div class="alert alert-error">
+                    <strong>Por favor, corrija os seguintes erros:</strong>
+                    <ul>${errorsList}</ul>
+                </div>
+            `;
+
+            // Rolar para o topo do formulário
+            errorSummary.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            errorSummary.innerHTML = '';
+        }
+    }
+
+    // Validar formulário programaticamente
+    static validate(formSelector) {
+        const form = document.querySelector(formSelector);
+        if (form) {
+            const validator = new FormValidator();
+            return validator.validateForm(form);
+        }
+        return false;
+    }
+}
+
+// Exportar para uso global
+window.FormValidator = FormValidator;

@@ -1,0 +1,88 @@
+// ===== CONSTANTES DA APLICAÇÃO =====
+
+const Constants = {
+    // Configurações da aplicação
+    APP: {
+        NAME: 'ONG Connect',
+        VERSION: '1.0.0',
+        API_BASE_URL: '/api',
+        DEFAULT_LANGUAGE: 'pt-BR'
+    },
+
+    // Storage keys
+    STORAGE_KEYS: {
+        USER_PREFERENCES: 'userPreferences',
+        VOLUNTEERS: 'volunteers',
+        DONATIONS: 'donations',
+        FORM_DATA: 'formData_'
+    },
+
+    // Estados e status
+    STATUS: {
+        PENDING: 'pending',
+        APPROVED: 'approved',
+        REJECTED: 'rejected',
+        COMPLETED: 'completed',
+        CANCELLED: 'cancelled'
+    },
+
+    // Categorias de projetos
+    PROJECT_CATEGORIES: {
+        EDUCATION: 'educacao',
+        ENVIRONMENT: 'meio-ambiente',
+        HEALTH: 'saude',
+        SOCIAL: 'assistencia-social',
+        CULTURE: 'cultura',
+        SPORTS: 'esportes',
+        TECHNOLOGY: 'tecnologia'
+    },
+
+    // Tipos de contribuição
+    CONTRIBUTION_TYPES: {
+        VOLUNTEER: 'voluntario',
+        DONOR: 'doador',
+        BOTH: 'ambos'
+    },
+
+    // Mensagens padrão
+    MESSAGES: {
+        SUCCESS: {
+            FORM_SUBMITTED: 'Formulário enviado com sucesso!',
+            DATA_SAVED: 'Dados salvos com sucesso!',
+            OPERATION_COMPLETED: 'Operação realizada com sucesso!'
+        },
+        ERROR: {
+            REQUIRED_FIELD: 'Este campo é obrigatório',
+            INVALID_EMAIL: 'Email inválido',
+            INVALID_CPF: 'CPF inválido',
+            INVALID_PHONE: 'Telefone inválido',
+            INVALID_CEP: 'CEP inválido',
+            FORM_ERROR: 'Por favor, corrija os erros no formulário',
+            NETWORK_ERROR: 'Erro de conexão. Tente novamente.'
+        },
+        WARNING: {
+            UNSAVED_CHANGES: 'Você tem alterações não salvas',
+            CONFIRM_DELETE: 'Tem certeza que deseja excluir?'
+        }
+    },
+
+    // Configurações de validação
+    VALIDATION: {
+        MIN_PASSWORD_LENGTH: 6,
+        MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
+        ALLOWED_FILE_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+    },
+
+    // Breakpoints para responsividade
+    BREAKPOINTS: {
+        XS: 480,
+        SM: 576,
+        MD: 768,
+        LG: 992,
+        XL: 1200,
+        XXL: 1400
+    }
+};
+
+// Exportar para uso global
+window.Constants = Constants;

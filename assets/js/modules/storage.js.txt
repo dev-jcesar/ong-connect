@@ -1,0 +1,200 @@
+// ===== SISTEMA DE ARMAZENAMENTO LOCAL =====
+
+class StorageManager {
+    constructor() {
+        this.prefix = 'ongConnect_';
+    }
+
+    // ===== CRUD BÁSICO =====
+
+    set(key, value) {
+        try {
+            const serializedValue = JSON.stringify(value);
+            localStorage.setItem(this.prefix + key, serializedValue);
+            return true;
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+            return false;
+        }
+    }
+
+    get(key, defaultValue = null) {
+        try {
+            const item = localStorage.getItem(this.prefix + key);
+            return item ? JSON.parse(item) : defaultValue;
+        } catch (error) {
+            console.error('Erro ao ler do localStorage:', error);
+            return defaultValue;
+        }
+    }
+
+    remove(key) {
+        try {
+            localStorage.removeItem(this.prefix + key);
+            return true;
+        } catch (error) {
+            console.error('Erro ao remover do localStorage:', error);
+            return false;
+        }
+    }
+
+    clear() {
+        try {
+            // Remover apenas itens do prefixo da aplicação
+            Object.keys(localStorage)
+                .filter(key => key.startsWith(this.prefix))
+                .forEach(key => localStorage.removeItem(key));
+            return true;
+        } catch (error) {
+            console.error('Erro ao limpar localStorage:', error);
+            return false;
+        }
+    }
+
+    // ===== FUNCIONALIDADES ESPECÍFICAS =====
+
+    // Salvar dados do formulário
+    saveFormData(formId, formData) {
+        const key = `formData_${formId}`;
+        return this.set(key, {
+            ...formData,
+            savedAt: new Date().toISOString()
+        });
+    }
+
+    // Recuperar dados do formulário
+    getFormData(formId) {
+        const key = `formData_${formId}`;
+        return this.get(key, {});
+    }
+
+    // Limpar dados do formulário
+    clearFormData(formId) {
+        const key = `formData_${formId}`;
+        return this.remove(key);
+    }
+
+    // Salvar preferências do usuário
+    saveUserPreferences(preferences) {
+        return this.set('userPreferences', {
+            ...this.getUserPreferences(),
+            ...preferences,
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    // Recuperar preferências do usuário
+    getUserPreferences() {
+        return this.get('userPreferences', {
+            theme: 'light',
+            notifications: true,
+            language: 'pt-BR'
+        });
+    }
+
+    // ===== GERENCIAMENTO DE VOLUNTÁRIOS =====
+
+    // Salvar cadastro de voluntário
+    saveVolunteer(volunteerData) {
+        const volunteers = this.getVolunteers();
+        const newVolunteer = {
+            id: this.generateId(),
+            ...volunteerData,
+            createdAt: new Date().toISOString(),
+            status: 'pending'
+        };
+
+        volunteers.push(newVolunteer);
+        this.set('volunteers', volunteers);
+        
+        return newVolunteer;
+    }
+
+    // Recuperar todos os voluntários
+    getVolunteers() {
+        return this.get('volunteers', []);
+    }
+
+    // Recuperar voluntário por ID
+    getVolunteer(id) {
+        const volunteers = this.getVolunteers();
+        return volunteers.find(volunteer => volunteer.id === id);
+    }
+
+    // Atualizar voluntário
+    updateVolunteer(id, updates) {
+        const volunteers = this.getVolunteers();
+        const index = volunteers.findIndex(volunteer => volunteer.id === id);
+        
+        if (index !== -1) {
+            volunteers[index] = { ...volunteers[index], ...updates };
+            this.set('volunteers', volunteers);
+            return true;
+        }
+        
+        return false;
+    }
+
+    // ===== GERENCIAMENTO DE DOAÇÕES =====
+
+    // Salvar doação
+    saveDonation(donationData) {
+        const donations = this.getDonations();
+        const newDonation = {
+            id: this.generateId(),
+            ...donationData,
+            createdAt: new Date().toISOString(),
+            status: 'completed'
+        };
+
+        donations.push(newDonation);
+        this.set('donations', donations);
+        
+        return newDonation;
+    }
+
+    // Recuperar todas as doações
+    getDonations() {
+        return this.get('donations', []);
+    }
+
+    // ===== UTILITÁRIOS =====
+
+    generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    // Verificar se o storage está disponível
+    static isAvailable() {
+        try {
+            const test = 'test';
+            localStorage.setItem(test, test);
+            localStorage.removeItem(test);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // Obter estatísticas de uso
+    getStorageStats() {
+        let totalSize = 0;
+        let itemCount = 0;
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith(this.prefix)) {
+                totalSize += localStorage[key].length;
+                itemCount++;
+            }
+        });
+
+        return {
+            itemCount,
+            totalSize: `${(totalSize / 1024).toFixed(2)} KB`,
+            usagePercentage: ((totalSize / (5 * 1024 * 1024)) * 100).toFixed(2) + '%'
+        };
+    }
+}
+
+// Exportar para uso global
+window.StorageManager = StorageManager;

@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cadastre-se como voluntário ou doador">
-    <title>ONG Connect - Cadastro</title>
+    <meta name="description" content="Plataforma para ONGs - Conectando causas sociais">
+    <title>ONG Connect - Página Inicial</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+    <!-- Header -->
     <header>
         <div class="container">
             <nav class="navbar">
@@ -21,34 +22,34 @@
                 </div>
                 
                 <ul class="nav-menu">
-                    <li><a href="index.html">Início</a></li>
+                    <li><a href="/" class="active">Início</a></li>
                     <li class="dropdown">
-                        <a href="projetos.html">Projetos <i class="dropdown-arrow">▼</i></a>
+                        <a href="/projetos">Projetos <i class="dropdown-arrow">▼</i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="projetos.html#educacao">Educação</a></li>
-                            <li><a href="projetos.html#meio-ambiente">Meio Ambiente</a></li>
-                            <li><a href="projetos.html#saude">Saúde</a></li>
-                            <li><a href="projetos.html#assistencia">Assistência Social</a></li>
+                            <li><a href="/projetos#educacao">Educação</a></li>
+                            <li><a href="/projetos#meio-ambiente">Meio Ambiente</a></li>
+                            <li><a href="/projetos#saude">Saúde</a></li>
+                            <li><a href="/projetos#assistencia">Assistência Social</a></li>
                         </ul>
                     </li>
-                    <li><a href="cadastro.html" class="active">Cadastro</a></li>
+                    <li><a href="/cadastro">Cadastro</a></li>
                     <li class="dropdown">
-                        <a href="#">Mais <i class="dropdown-arrow">▼</i></a>
+                        <a href="#" data-action="show-more">Mais <i class="dropdown-arrow">▼</i></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Sobre Nós</a></li>
-                            <li><a href="#">Transparência</a></li>
-                            <li><a href="#">Relatórios</a></li>
-                            <li><a href="#">Contato</a></li>
+                            <li><a href="#" data-action="show-about">Sobre Nós</a></li>
+                            <li><a href="#" data-action="show-transparency">Transparência</a></li>
+                            <li><a href="#" data-action="show-reports">Relatórios</a></li>
+                            <li><a href="#" data-action="show-contact">Contato</a></li>
                         </ul>
                     </li>
                 </ul>
                 
                 <div class="auth-buttons">
-                    <a href="#" class="btn btn-outline btn-sm">Entrar</a>
-                    <a href="cadastro.html" class="btn btn-primary btn-sm">Cadastrar</a>
+                    <a href="#" class="btn btn-outline btn-sm" data-action="show-login">Entrar</a>
+                    <a href="/cadastro" class="btn btn-primary btn-sm">Cadastrar</a>
                 </div>
                 
-                <button class="hamburger" aria-label="Menu">
+                <button class="hamburger" aria-label="Menu" data-action="toggle-menu">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -57,179 +58,31 @@
         </div>
     </header>
 
-    <main>
-        <section>
+    <main data-page="home">
+        <!-- Hero Section -->
+        <section class="hero">
             <div class="container">
-                <div class="section-title">
-                    <h1>Cadastre-se</h1>
-                    <p>Junte-se a nós como voluntário ou doador e faça a diferença</p>
-                </div>
-                
-                <div class="form-container">
-                    <form id="cadastroForm" novalidate>
-                        <fieldset>
-                            <legend>Informações Pessoais</legend>
-                            
-                            <div class="form-group">
-                                <label for="nome">Nome Completo *</label>
-                                <input type="text" id="nome" name="nome" required minlength="3" maxlength="100" placeholder="Digite seu nome completo">
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="email">E-mail *</label>
-                                    <input type="email" id="email" name="email" required placeholder="seu@email.com">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="telefone">Telefone *</label>
-                                    <input type="tel" id="telefone" name="telefone" required pattern="\(\d{2}\)\s\d{4,5}-\d{4}" placeholder="(11) 99999-9999">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="cpf">CPF *</label>
-                                    <input type="text" id="cpf" name="cpf" required pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" placeholder="000.000.000-00">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="nascimento">Data de Nascimento *</label>
-                                    <input type="date" id="nascimento" name="nascimento" required min="1900-01-01" max="2023-12-31">
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <fieldset>
-                            <legend>Endereço</legend>
-                            
-                            <div class="form-group">
-                                <label for="endereco">Endereço *</label>
-                                <input type="text" id="endereco" name="endereco" required placeholder="Rua, número, complemento">
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="cep">CEP *</label>
-                                    <input type="text" id="cep" name="cep" required pattern="\d{5}-\d{3}" placeholder="00000-000">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="cidade">Cidade *</label>
-                                    <input type="text" id="cidade" name="cidade" required placeholder="Sua cidade">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="estado">Estado *</label>
-                                    <select id="estado" name="estado" required>
-                                        <option value="">Selecione</option>
-                                        <option value="AC">Acre</option>
-                                        <option value="AL">Alagoas</option>
-                                        <option value="AP">Amapá</option>
-                                        <option value="AM">Amazonas</option>
-                                        <option value="BA">Bahia</option>
-                                        <option value="CE">Ceará</option>
-                                        <option value="DF">Distrito Federal</option>
-                                        <option value="ES">Espírito Santo</option>
-                                        <option value="GO">Goiás</option>
-                                        <option value="MA">Maranhão</option>
-                                        <option value="MT">Mato Grosso</option>
-                                        <option value="MS">Mato Grosso do Sul</option>
-                                        <option value="MG">Minas Gerais</option>
-                                        <option value="PA">Pará</option>
-                                        <option value="PB">Paraíba</option>
-                                        <option value="PR">Paraná</option>
-                                        <option value="PE">Pernambuco</option>
-                                        <option value="PI">Piauí</option>
-                                        <option value="RJ">Rio de Janeiro</option>
-                                        <option value="RN">Rio Grande do Norte</option>
-                                        <option value="RS">Rio Grande do Sul</option>
-                                        <option value="RO">Rondônia</option>
-                                        <option value="RR">Roraima</option>
-                                        <option value="SC">Santa Catarina</option>
-                                        <option value="SP">São Paulo</option>
-                                        <option value="SE">Sergipe</option>
-                                        <option value="TO">Tocantins</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="bairro">Bairro *</label>
-                                    <input type="text" id="bairro" name="bairro" required placeholder="Seu bairro">
-                                </div>
-                            </div>
-                        </fieldset>
-                        
-                        <fieldset>
-                            <legend>Como deseja contribuir?</legend>
-                            
-                            <div class="form-group">
-                                <label for="tipo-contribuicao">Tipo de Contribuição *</label>
-                                <select id="tipo-contribuicao" name="tipo-contribuicao" required>
-                                    <option value="">Selecione</option>
-                                    <option value="voluntario">Voluntário</option>
-                                    <option value="doador">Doador</option>
-                                    <option value="ambos">Ambos</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="areas-interesse">Áreas de Interesse (múltipla escolha)</label>
-                                <select id="areas-interesse" name="areas-interesse" multiple size="5">
-                                    <option value="educacao">Educação</option>
-                                    <option value="saude">Saúde</option>
-                                    <option value="meio-ambiente">Meio Ambiente</option>
-                                    <option value="assistencia-social">Assistência Social</option>
-                                    <option value="cultura">Cultura</option>
-                                    <option value="esportes">Esportes</option>
-                                    <option value="tecnologia">Tecnologia</option>
-                                    <option value="administrativo">Administrativo</option>
-                                </select>
-                                <small>Segure Ctrl (ou Cmd no Mac) para selecionar múltiplas opções</small>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="disponibilidade">Disponibilidade de Horas por Semana (apenas para voluntários)</label>
-                                <input type="number" id="disponibilidade" name="disponibilidade" min="1" max="40" placeholder="Ex: 5">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="mensagem">Mensagem ou Observações</label>
-                                <textarea id="mensagem" name="mensagem" rows="4" placeholder="Conte-nos um pouco sobre suas motivações, habilidades ou qualquer informação relevante"></textarea>
-                            </div>
-                        </fieldset>
-                        
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">Enviar Cadastro</button>
-                        </div>
-                    </form>
+                <div class="hero-content fade-in">
+                    <h1>Conectando causas sociais com pessoas que fazem a diferença</h1>
+                    <p>Uma plataforma completa para ONGs gerenciarem projetos, engajarem voluntários e captarem recursos de forma eficiente.</p>
+                    <div class="hero-buttons">
+                        <a href="/projetos" class="btn btn-primary">Conhecer Projetos</a>
+                        <a href="/cadastro" class="btn btn-secondary">Tornar-se Voluntário</a>
+                    </div>
                 </div>
             </div>
         </section>
-    </main>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>ONG Connect</h3>
-                    <p>Uma plataforma completa para conectar ONGs, voluntários e doadores em prol de causas sociais.</p>
+        <!-- Sobre -->
+        <section class="about">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Sobre Nossa Plataforma</h2>
+                    <p>Uma solução digital completa desenvolvida para fortalecer o terceiro setor brasileiro</p>
                 </div>
                 
-                <div class="footer-column">
-                    <h3>Links Rápidos</h3>
-                    <ul class="footer-links">
-                        <li><a href="index.html">Início</a></li>
-                        <li><a href="projetos.html">Projetos</a></li>
-                        <li><a href="cadastro.html">Cadastro</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Contato</h3>
-                    <ul class="footer-links">
-                        <li>Email: contato@ongconnect.org</li>
-                        <li>Telefone: (11) 3456-7890</li>
-                        <li>Endereço: Rua das
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>Mais de 820 mil organizações da sociedade civil no Brasil</h2>
+                        <p>Apenas 30% possuem presença digital adequada. Nossa missão é mudar essa realidade, oferecendo uma plataforma profissional e acessível para que ONGs possam ampliar seu alcance, captar recursos e engajar voluntários.</p>
+                        <p>Desenvolvida com as melhores práticas de desenvolvimento web, a plataforma ONG Connect

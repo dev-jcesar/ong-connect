@@ -1,0 +1,79 @@
+// ===== FUNÇÕES UTILITÁRIAS =====
+
+class Helpers {
+    // Debounce para otimizar eventos
+    static debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // Formatadores
+    static formatCPF(cpf) {
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    static formatPhone(phone) {
+        return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    }
+
+    static formatCEP(cep) {
+        return cpf.replace(/(\d{5})(\d{3})/, '$1-$2');
+    }
+
+    // Validadores
+    static isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+
+    static isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    // Manipulação de dados
+    static sanitizeHTML(str) {
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML;
+    }
+
+    static deepClone(obj) {
+        return JSON.parse(JSON.stringify(obj));
+    }
+
+    // Datas
+    static formatDate(date, format = 'pt-BR') {
+        return new Date(date).toLocaleDateString(format);
+    }
+
+    static getRelativeTime(date) {
+        const now = new Date();
+        const diff = now - new Date(date);
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+
+        if (minutes < 1) return 'Agora mesmo';
+        if (minutes < 60) return `${minutes} min atrás`;
+        if (hours < 24) return `${hours} h atrás`;
+        if (days < 7) return `${days} dias atrás`;
+        
+        return this.formatDate(date);
+    }
+}
+
+// Exportar para uso global
+window.Helpers = Helpers;

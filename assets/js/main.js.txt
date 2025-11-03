@@ -1,0 +1,318 @@
+// ===== ARQUIVO PRINCIPAL - ONG CONNECT =====
+
+// Importar módulos
+import './utils/constants.js';
+import './utils/helpers.js';
+import './modules/spa.js';
+import './modules/templates.js';
+import './modules/validation.js';
+import './modules/storage.js';
+import './modules/ui.js';
+
+class ONGConnectApp {
+    constructor() {
+        this.modules = {};
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Inicializar módulos
+            await this.initializeModules();
+
+            // Configurar aplicação
+            this.setupApplication();
+
+            // Mostrar que a aplicação está pronta
+            console.log('🚀 ONG Connect App inicializada com sucesso!');
+
+        } catch (error) {
+            console.error('❌ Erro ao inicializar aplicação:', error);
+            this.handleInitializationError(error);
+        }
+    }
+
+    async initializeModules() {
+        // Inicializar SPA (Single Page Application)
+        this.modules.spa = new SPA();
+
+        // Inicializar gerenciador de templates
+        this.modules.templates = new TemplateManager();
+
+        // Inicializar validação de formulários
+        this.modules.validator = new FormValidator();
+
+        // Inicializar gerenciador de storage
+        this.modules.storage = new StorageManager();
+
+        // Inicializar gerenciador de UI
+        this.modules.ui = new UIManager();
+
+        // Aguardar todos os módulos estarem prontos
+        await this.waitForModules();
+    }
+
+    async waitForModules() {
+        return new Promise((resolve) => {
+            const checkModules = () => {
+                const allReady = Object.values(this.modules).every(module => module !== undefined);
+                if (allReady) {
+                    resolve();
+                } else {
+                    setTimeout(checkModules, 100);
+                }
+            };
+            checkModules();
+        });
+    }
+
+    setupApplication() {
+        // Configurar máscaras de input
+        this.setupInputMasks();
+
+        // Configurar auto-save de formulários
+        this.setupAutoSave();
+
+        // Configurar eventos globais
+        this.setupGlobalEvents();
+
+        // Verificar storage disponível
+        this.checkStorageAvailability();
+
+        // Mostrar informações de debug (apenas em desenvolvimento)
+        this.showDebugInfo();
+    }
+
+    setupInputMasks() {
+        // Máscara para CPF
+        const cpfInputs = document.querySelectorAll('input[name="cpf"]');
+        cpfInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        });
+
+        // Máscara para telefone
+        const phoneInputs = document.querySelectorAll('input[name="telefone"]');
+        phoneInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                    value = value.replace(/(\d)(\d{4})$/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        });
+
+        // Máscara para CEP
+        const cepInputs = document.querySelectorAll('input[name="cep"]');
+        cepInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 5) {
+                    value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        });
+    }
+
+    setupAutoSave() {
+        const forms = document.querySelectorAll('form[data-autosave]');
+        
+        forms.forEach(form => {
+            const formId = form.id || 'form_' + Math.random().toString(36).substr(2, 9);
+            
+            // Recuperar dados salvos
+            const savedData = this.modules.storage.getFormData(formId);
+            if (Object.keys(savedData).length > 0) {
+                this.populateForm(form, savedData);
+                
+                // Mostrar aviso de dados recuperados
+                this.modules.ui.showNotification(
+                    'Dados anteriores recuperados automaticamente',
+                    'info',
+                    3000
+                );
+            }
+
+            // Salvar dados em tempo real
+            const saveHandler = Helpers.debounce(() => {
+                const formData = this.getFormData(form);
+                this.modules.storage.saveFormData(formId, formData);
+            }, 1000);
+
+            form.addEventListener('input', saveHandler);
+            form.addEventListener('change', saveHandler);
+
+            // Limpar dados ao enviar com sucesso
+            form.addEventListener('submit', (e) => {
+                if (form.checkValidity()) {
+                    setTimeout(() => {
+                        this.modules.storage.clearFormData(formId);
+                    }, 1000);
+                }
+            });
+        });
+    }
+
+    setupGlobalEvents() {
+        // Logout (se implementado no futuro)
+        document.addEventListener('logout', () => {
+            this.modules.storage.clear();
+            this.modules.ui.showNotification('Logout realizado com sucesso', 'info');
+        });
+
+        // Error handling global
+        window.addEventListener('error', (e) => {
+            console.error('Erro global:', e.error);
+            this.modules.ui.showNotification(
+                'Ocorreu um erro inesperado',
+                'error',
+                5000
+            );
+        });
+
+        // Offline/Online detection
+        window.addEventListener('online', () => {
+            this.modules.ui.showNotification('Conexão restaurada', 'success', 3000);
+        });
+
+        window.addEventListener('offline', () => {
+            this.modules.ui.showNotification(
+                'Você está offline. Algumas funcionalidades podem não estar disponíveis.',
+                'warning',
+                5000
+            );
+        });
+    }
+
+    checkStorageAvailability() {
+        if (!StorageManager.isAvailable()) {
+            this.modules.ui.showNotification(
+                'O armazenamento local não está disponível. Algumas funcionalidades podem não funcionar.',
+                'warning',
+                10000
+            );
+        }
+    }
+
+    showDebugInfo() {
+        // Apenas em desenvolvimento
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            const stats = this.modules.storage.getStorageStats();
+            console.group('📊 ONG Connect - Debug Info');
+            console.log('Módulos carregados:', Object.keys(this.modules));
+            console.log('Storage stats:', stats);
+            console.log('User preferences:', this.modules.storage.getUserPreferences());
+            console.groupEnd();
+        }
+    }
+
+    // ===== MÉTODOS UTILITÁRIOS =====
+
+    getFormData(form) {
+        const formData = new FormData(form);
+        const data = {};
+        
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        
+        return data;
+    }
+
+    populateForm(form, data) {
+        Object.keys(data).forEach(key => {
+            const element = form.querySelector(`[name="${key}"]`);
+            if (element && data[key] !== undefined) {
+                element.value = data[key];
+            }
+        });
+    }
+
+    handleInitializationError(error) {
+        // Mostrar erro para o usuário
+        const errorMessage = `
+            <div style="
+                background: #f44336;
+                color: white;
+                padding: 2rem;
+                border-radius: 8px;
+                text-align: center;
+                margin: 2rem;
+            ">
+                <h3>Erro ao carregar a aplicação</h3>
+                <p>Algumas funcionalidades podem não estar disponíveis.</p>
+                <button onclick="location.reload()" style="
+                    background: white;
+                    color: #f44336;
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    margin-top: 1rem;
+                ">
+                    Recarregar Página
+                </button>
+            </div>
+        `;
+        
+        document.body.innerHTML = errorMessage + document.body.innerHTML;
+    }
+
+    // ===== API PÚBLICA =====
+
+    // Método para outros scripts acessarem a aplicação
+    static getInstance() {
+        if (!window.ongConnectApp) {
+            window.ongConnectApp = new ONGConnectApp();
+        }
+        return window.ongConnectApp;
+    }
+
+    // Método para validar formulário externamente
+    static validateForm(formSelector) {
+        return FormValidator.validate(formSelector);
+    }
+
+    // Método para mostrar notificação
+    static notify(message, type = 'info') {
+        const app = ONGConnectApp.getInstance();
+        return app.modules.ui.showNotification(message, type);
+    }
+
+    // Método para salvar dados
+    static saveData(key, value) {
+        const app = ONGConnectApp.getInstance();
+        return app.modules.storage.set(key, value);
+    }
+
+    // Método para carregar dados
+    static loadData(key, defaultValue = null) {
+        const app = ONGConnectApp.getInstance();
+        return app.modules.storage.get(key, defaultValue);
+    }
+}
+
+// ===== INICIALIZAÇÃO DA APLICAÇÃO =====
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializar aplicação
+    window.ongConnectApp = new ONGConnectApp();
+
+    // Expor métodos globais para debug
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.ONGConnect = ONGConnectApp;
+    }
+});
+
+// Exportar para módulos
+export default ONGConnectApp;

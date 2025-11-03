@@ -1,0 +1,79 @@
+// ===== SISTEMA DE TEMPLATES JAVASCRIPT =====
+
+class TemplateManager {
+    constructor() {
+        this.templates = new Map();
+        this.init();
+    }
+
+    init() {
+        // Carregar templates existentes na página
+        this.loadExistingTemplates();
+        
+        // Registrar eventos
+        this.registerEvents();
+    }
+
+    loadExistingTemplates() {
+        // Encontrar todos os elementos com data-template
+        document.querySelectorAll('[data-template]').forEach(element => {
+            const templateName = element.getAttribute('data-template');
+            this.templates.set(templateName, element.innerHTML);
+        });
+    }
+
+    registerEvents() {
+        // Evento para quando a página muda (SPA)
+        window.addEventListener('pageChanged', () => {
+            this.loadExistingTemplates();
+        });
+    }
+
+    // Renderizar template com dados
+    render(templateName, data = {}) {
+        let template = this.templates.get(templateName);
+        
+        if (!template) {
+            console.error(`Template "${templateName}" não encontrado`);
+            return '';
+        }
+
+        // Substituir placeholders {{key}} pelos dados
+        template = template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+            return data[key] !== undefined ? data[key] : match;
+        });
+
+        return template;
+    }
+
+    // Renderizar template em um elemento
+    renderTo(element, templateName, data = {}) {
+        const rendered = this.render(templateName, data);
+        if (rendered && element) {
+            element.innerHTML = rendered;
+            return true;
+        }
+        return false;
+    }
+
+    // Adicionar template dinamicamente
+    addTemplate(name, html) {
+        this.templates.set(name, html);
+    }
+
+    // Carregar template de um arquivo externo
+    async loadTemplateFromFile(templateName, filePath) {
+        try {
+            const response = await fetch(filePath);
+            const html = await response.text();
+            this.templates.set(templateName, html);
+            return true;
+        } catch (error) {
+            console.error(`Erro ao carregar template ${templateName}:`, error);
+            return false;
+        }
+    }
+}
+
+// Exportar para uso global
+window.TemplateManager = TemplateManager;

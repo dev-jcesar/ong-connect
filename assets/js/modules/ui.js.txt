@@ -1,0 +1,293 @@
+// ===== SISTEMA DE INTERFACE DO USUÁRIO =====
+
+class UIManager {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        this.setupGlobalEvents();
+        
+        // Re-inicializar quando a página muda (SPA)
+        window.addEventListener('pageChanged', () => {
+            this.setupGlobalEvents();
+        });
+    }
+
+    setupGlobalEvents() {
+        // Sistema de notificações
+        this.setupNotifications();
+        
+        // Sistema de modais
+        this.setupModals();
+        
+        // Sistema de loading states
+        this.setupLoadingStates();
+    }
+
+    // ===== SISTEMA DE NOTIFICAÇÕES =====
+
+    setupNotifications() {
+        // Container para notificações
+        if (!document.getElementById('notification-container')) {
+            const container = document.createElement('div');
+            container.id = 'notification-container';
+            container.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                max-width: 400px;
+            `;
+            document.body.appendChild(container);
+        }
+    }
+
+    showNotification(message, type = 'info', duration = 5000) {
+        const container = document.getElementById('notification-container');
+        const notification = document.createElement('div');
+        
+        const typeStyles = {
+            success: 'background: #4CAF50; color: white;',
+            error: 'background: #f44336; color: white;',
+            warning: 'background: #ff9800; color: white;',
+            info: 'background: #2196F3; color: white;'
+        };
+
+        notification.innerHTML = `
+            <div style="
+                ${typeStyles[type]}
+                padding: 1rem 1.5rem;
+                margin-bottom: 0.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                animation: slideInRight 0.3s ease;
+            ">
+                <span class="notification-icon">${this.getNotificationIcon(type)}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" style="
+                    background: none;
+                    border: none;
+                    color: inherit;
+                    cursor: pointer;
+                    margin-left: auto;
+                    font-size: 1.2rem;
+                ">×</button>
+            </div>
+        `;
+
+        container.appendChild(notification);
+
+        // Fechar notificação
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            this.removeNotification(notification);
+        });
+
+        // Auto-remover após duração
+        if (duration > 0) {
+            setTimeout(() => {
+                this.removeNotification(notification);
+            }, duration);
+        }
+
+        return notification;
+    }
+
+    removeNotification(notification) {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: '✅',
+            error: '❌',
+            warning: '⚠️',
+            info: 'ℹ️'
+        };
+        return icons[type] || 'ℹ️';
+    }
+
+    // ===== SISTEMA DE MODAIS =====
+
+    setupModals() {
+        // Fechar modal ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                this.closeModal(e.target.id);
+            }
+        });
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+        });
+    }
+
+    showModal(modalId, content = null) {
+        const modal = document.getElementById(modalId);
+        
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Animar entrada
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                modal.querySelector('.modal-content').style.transform = 'scale(1)';
+            }, 10);
+        } else if (content) {
+            this.createModal(modalId, content);
+        }
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.querySelector('.modal-content').style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+    }
+
+    closeAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            this.closeModal(modal.id);
+        });
+    }
+
+    createModal(modalId, content) {
+        const modalHTML = `
+            <div id="${modalId}" class="modal" style="
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            ">
+                <div class="modal-content" style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(0.8);
+                    background: white;
+                    padding: 2rem;
+                    border-radius: 12px;
+                    max-width: 90%;
+                    max-height: 90%;
+                    overflow: auto;
+                    transition: transform 0.3s ease;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                ">
+                    ${content}
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        this.showModal(modalId);
+    }
+
+    // ===== SISTEMA DE LOADING =====
+
+    setupLoadingStates() {
+        // Interceptar submits de formulário para mostrar loading
+        document.addEventListener('submit', (e) => {
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            if (submitBtn) {
+                this.showButtonLoading(submitBtn);
+                
+                // Esconder loading quando o formulário for processado
+                setTimeout(() => {
+                    this.hideButtonLoading(submitBtn);
+                }, 3000); // Fallback
+            }
+        });
+    }
+
+    showButtonLoading(button) {
+        const originalText = button.innerHTML;
+        button.setAttribute('data-original-text', originalText);
+        button.innerHTML = `
+            <span class="spinner" style="
+                width: 16px;
+                height: 16px;
+                border: 2px solid transparent;
+                border-top: 2px solid currentColor;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                display: inline-block;
+                margin-right: 8px;
+            "></span>
+            Processando...
+        `;
+        button.disabled = true;
+    }
+
+    hideButtonLoading(button) {
+        const originalText = button.getAttribute('data-original-text');
+        if (originalText) {
+            button.innerHTML = originalText;
+        }
+        button.disabled = false;
+    }
+
+    // ===== ANIMAÇÕES =====
+
+    animateElement(element, animationName) {
+        element.style.animation = `${animationName} 0.6s ease`;
+        
+        element.addEventListener('animationend', () => {
+            element.style.animation = '';
+        }, { once: true });
+    }
+
+    // ===== UTILITÁRIOS =====
+
+    disableForm(form) {
+        form.querySelectorAll('input, select, textarea, button').forEach(element => {
+            element.disabled = true;
+        });
+    }
+
+    enableForm(form) {
+        form.querySelectorAll('input, select, textarea, button').forEach(element => {
+            element.disabled = false;
+        });
+    }
+
+    scrollToElement(elementId, offset = 100) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            const elementPosition = element.offsetTop - offset;
+            window.scrollTo({
+                top: elementPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+}
+
+// Exportar para uso global
+window.UIManager = UIManager;
